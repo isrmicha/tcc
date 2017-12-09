@@ -1,0 +1,29 @@
+<md-sidenav
+    class="md-sidenav-left"
+    md-component-id="left"
+    md-is-locked-open="$mdMedia('gt-xs')"
+    md-whiteframe="4">
+
+  <md-toolbar class="md-theme-indigo">
+    <h1 class="md-toolbar-tools">TCC Finder</h1>
+  </md-toolbar>
+  <md-content layout="column" >
+    <md-list  ng-cloak flex>
+      <md-subheader class="md-no-sticky">Navegação</md-subheader>
+      <md-list-item ng-click="irPara('inicial')">
+          <md-icon md-svg-icon="content-copy"></md-icon>
+          <p>Banco de TCC's</p>
+      </md-list-item>
+      <md-divider></md-divider>
+      <md-list-item ng-click="irPara('add')">
+          <md-icon md-svg-icon="add"></md-icon>
+          <p>Adicionar TCC</p>
+      </md-list-item>
+      <md-divider></md-divider>
+        <md-list-item ng-click="deslogar()" >
+            <md-icon md-svg-icon="arrow-back"></md-icon>
+            <p>Sair</p>
+          </md-list-item>
+      </md-list>
+  </md-content>
+</md-sidenav>

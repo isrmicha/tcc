@@ -1,0 +1,234 @@
+<html lang="pt-br">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-route.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <script src="ag-grid.js"></script>
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+  <link rel="stylesheet" href="estilo.css">
+  <meta name="theme-color" content="#E0E0E0" />
+</head>
+<body ng-app="myApp" ng-controller="myCtrl" ng-cloak>
+<div ng-if="!logado">
+<div ng-include="'login.html'"></div>
+</div>
+<div ng-if="logado">
+<section layout="row" flex>
+
+<div ng-include="'leftNav.html'"></div>
+
+<md-content flex layout-padding>
+<div ng-include="'toolbar.html'"></div>
+<div ng-view></div>
+
+  
+
+</md-content>
+
+
+
+</section>
+</div>
+
+
+ 
+
+<script>
+  agGrid.initialiseAgGridWithAngular1(angular);
+  var app = angular.module('myApp', ["ngRoute","ngMaterial","agGrid"]);
+//region config
+  app.config(function($routeProvider,$locationProvider,$mdIconProvider) {
+    $routeProvider
+    .when("/", {
+        templateUrl : "inicial.html"
+    })
+    .when("/galeria", {
+        templateUrl : "galeria.html"
+    })
+    .when("/add", {
+        templateUrl : "add.html"
+    })
+    .otherwise("/");
+       // use the HTML5 History API
+       $locationProvider.html5Mode({
+        enabled: true,
+        requireBase: false
+      });
+      $mdIconProvider
+    .defaultIconSet('img/icons/sets/core-icons.svg', 24);
+  });
+  //endregion
+//region myCtrl
+  app.controller('myCtrl', function ($scope,$http,$timeout,$mdSidenav,$log,$location) {
+
+
+    $scope.logado = false;
+    $scope.admin = false;
+    $scope.toolBarName = "Banco de TCC's";
+    console.log(localStorage.logado);
+    if(localStorage.logado=="true"){
+      console.log('ta logado');
+      preencheGrid();
+      $scope.logado = true;
+     
+      
+    }
+    $scope.user = {email : '', senha : ''};
+        $scope.toggleLeft = buildDelayedToggler('left');
+        function debounce(func, wait, context) {
+      var timer;
+      return function debounced() {
+        var context = $scope,
+            args = Array.prototype.slice.call(arguments);
+        $timeout.cancel(timer);
+        timer = $timeout(function() {
+          timer = undefined;
+          func.apply(context, args);
+        }, wait || 10);
+      };
+    }
+        function buildDelayedToggler(navID) {
+      return debounce(function() {
+        // Component lookup should always be available since we are not using `ng-if`
+        $mdSidenav(navID)
+          .toggle()
+          .then(function () {
+            $log.debug("toggle " + navID + " is done");
+          });
+      }, 200);
+    }
+        $scope.cards = [];
+        $scope.cards2 = [];
+        for (let i = 0; i < 3; i++) {
+          $scope.cards2.push({
+            url: `https://source.unsplash.com/random/1920x1080?sig=${i+9}`,
+            nome: `card${i}`
+          });
+        }
+        $scope.cards.push({
+          url: `http://www.faeterj-rio.edu.br/wp-content/uploads/2017/11/301117-300x234.jpg`,
+          nome: `Inteligência Aumentada, a tecnologia do futuro.`
+        });
+        $scope.cards.push({
+          url: `http://www.faeterj-rio.edu.br/wp-content/uploads/2017/11/inteligencia-artificial_2017-560x300.jpg`,
+          nome: `Aprendendo a aprender sobre IA, algoritmos`
+        });
+        $scope.cards.push({
+          url: `http://www.faeterj-rio.edu.br/wp-content/uploads/2017/11/291117.jpg`,
+          nome: `Por que qudits são melhores que qubits`
+        });
+        $scope.cards.push({
+          url: `http://www.faeterj-rio.edu.br/wp-content/uploads/2017/11/profissoes_TI_2017-1-768x408.jpg`,
+          nome: `Novas profissões – e inusitadas- que `
+        });
+        $scope.cards.push({
+          url: `http://www.faeterj-rio.edu.br/wp-content/uploads/2017/11/281117-768x380.jpg`,
+          nome: `Profissões de tecnologia que serão `
+        });
+        $scope.cards.push({
+          url: `http://www.faeterj-rio.edu.br/wp-content/uploads/2017/11/escola-do-trabalhador_2017-768x431.jpg`,
+          nome: `Escola do Trabalhador: governo `
+        });
+        $scope.logar = function(email,senha){
+          console.log(email);
+          console.log(senha);
+            $http({
+              method: 'GET',
+              url: 'banco.php?email='+email+'&senha='+senha+'&login=true',
+            }).then(function (response) {
+                if(response.data=='false'){
+                
+                }
+                else{
+                  if(response.data=='true'){
+                    localStorage.logado = true;
+                 $scope.logado = true;
+                  // window.location="admin.php";
+                 
+
+                  }
+                  else{
+                   
+                  }
+                 
+                }
+              });
+
+        }
+
+        $scope.deslogar = function(){
+         localStorage.logado = false;
+          $scope.logado = false;
+
+        }
+    $scope.close = function () {
+      // Component lookup should always be available since we are not using `ng-if`
+      $mdSidenav('left').close()
+        .then(function () {
+          $log.debug("close LEFT is done");
+        });
+       };
+       $scope.arrImagens = [];
+       for (let i=0;i<5;i++){
+         $scope.arrImagens.push('https://source.unsplash.com/random/80x80?sig=' + Math.random());
+       }
+       $scope.irPara = function (destino){
+        $location.path('/'+destino);
+       }
+       
+
+
+      
+  $scope.$on('$routeChangeSuccess', function($event, next, current) { 
+    try{
+      if(next.$$route.originalPath=='/'){
+      preencheGrid();
+    }
+    }
+    catch(err){
+      console.log(err);
+    }
+    
+  });
+  function preencheGrid(){
+    var columnDefs = [
+        {headerName: "#", field: "id"},
+        {headerName: "Autor", field: "autor", width: 100, editable: ($scope.admin)?true:false},
+        {headerName: "Tema", field: "tema", width: 100, editable: ($scope.admin)?true:false},
+        {headerName: "Link", field: "link", width: 100, editable: ($scope.admin)?true:false},
+        {headerName: "Data Atualizacao", field: "dataAtualizacao"},
+        {headerName: "Excluir", field: "excluir", cellRenderer: excluirCellRendererFunc}
+    ];
+    var rowData = [];
+    $scope.gridOptions = {
+        columnDefs: columnDefs,
+        rowData: rowData
+      };
+    $http({  method: 'GET',
+              url: 'banco.php?mostraTudo=true',
+            }).then(function (response) {
+    // $scope.gridOptions.rowData = response.data;
+    $scope.gridOptions.api.setRowData(response.data);
+    
+     });
+    
+  }
+  
+  function excluirCellRendererFunc(params) {
+      // params.$scope.ageClicked =ageClicked;
+        return '<button ng-click="ageClicked(data.id)" ng-bind="data.id">Excluir</button>';
+    }
+  
+      });
+
+      //endregion
+    </script>
+</body>
+</html> 
