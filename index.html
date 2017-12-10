@@ -66,7 +66,7 @@
   });
   //endregion
 //region myCtrl
-  app.controller('myCtrl', function ($scope,$http,$timeout,$mdSidenav,$log,$location) {
+  app.controller('myCtrl', function ($scope,$http,$timeout,$mdSidenav,$log,$location,$mdToast) {
 
 
     $scope.logado = false;
@@ -82,6 +82,7 @@
     }
     $scope.user = {email : '', senha : ''};
         $scope.toggleLeft = buildDelayedToggler('left');
+        
         function debounce(func, wait, context) {
       var timer;
       return function debounced() {
@@ -102,7 +103,7 @@
           .then(function () {
             $log.debug("toggle " + navID + " is done");
           });
-      }, 200);
+      }, 50);
     }
         $scope.cards = [];
         $scope.cards2 = [];
@@ -150,17 +151,11 @@
                   if(response.data=='true'){
                     localStorage.logado = true;
                  $scope.logado = true;
+                 $scope.showSimpleToast("Login realizado com sucesso!");
                   // window.location="admin.php";
-                 
-
                   }
-                  else{
-                   
-                  }
-                 
                 }
               });
-
         }
 
         $scope.deslogar = function(){
@@ -198,21 +193,38 @@
     
   });
   function preencheGrid(){
+    $scope.gridOptions = {};
     var columnDefs = [
         {headerName: "#", field: "id"},
-        {headerName: "Autor", field: "autor", width: 100, editable: ($scope.admin)?true:false},
-        {headerName: "Tema", field: "tema", width: 100, editable: ($scope.admin)?true:false},
-        {headerName: "Link", field: "link", width: 100, editable: ($scope.admin)?true:false},
+        {headerName: "Autor", field: "autor", width: 100, editable: ($scope.admin)?true:true},
+        {headerName: "Tema", field: "tema", width: 100, editable: ($scope.admin)?true:true},
+        {headerName: "Link", field: "link", width: 100, editable: ($scope.admin)?true:true},
         {headerName: "Data Atualizacao", field: "dataAtualizacao"},
         {headerName: "Excluir", field: "excluir", cellRenderer: excluirCellRendererFunc}
     ];
     var rowData = [];
     $scope.gridOptions = {
         columnDefs: columnDefs,
-        rowData: rowData
+        rowData: rowData,
+    onCellEditingStopped: function(event) {
+      $http({method: 'GET',
+              url: 'banco.php?autor='+event.data.autor+'&tema='+event.data.tema+'&id='+event.data.id+'&link='+event.data.link+'&update=true',
+            }).then(function (response) {
+                if(response.data=='false'){
+                  console.log("Falha ao update");
+                }
+                else{
+                  if(response.data=='true'){
+                    console.log("Update com sucesso");
+                    $scope.showSimpleToast("Update realizado com sucesso!");
+                  }
+                }
+              });
+    },
+    angularCompileRows: true
       };
     $http({  method: 'GET',
-              url: 'banco.php?mostraTudo=true',
+              url: 'banco.php?read=true',
             }).then(function (response) {
     // $scope.gridOptions.rowData = response.data;
     $scope.gridOptions.api.setRowData(response.data);
@@ -221,11 +233,56 @@
     
   }
   
-  function excluirCellRendererFunc(params) {
-      // params.$scope.ageClicked =ageClicked;
-        return '<button ng-click="ageClicked(data.id)" ng-bind="data.id">Excluir</button>';
-    }
-  
+  function deletar(id) {
+    $http({method: 'GET',
+              url: 'banco.php?id='+id+'&delete=true',
+            }).then(function (response) {
+                if(response.data=='false'){
+                  console.log("Falha ao update");
+                }
+                else{
+                  if(response.data=='true'){
+                    console.log("Delete com sucesso");
+                    $scope.showSimpleToast("Delete realizado com sucesso!");
+                    preencheGrid();
+                  }
+                }
+              }); 
+}
+
+
+
+function excluirCellRendererFunc(params) {
+
+    params.$scope.deletar = deletar;
+    return '<button ng-click="deletar(data.id)">Excluir</button>';
+}
+  $scope.adicionarTcc = function (autor,tema,link){
+   
+    $http({
+              method: 'GET',
+              url: 'banco.php?autor='+autor+'&tema='+tema+'&link='+link+'&create=true',
+            }).then(function (response) {
+                if(response.data=='false'){
+                  console.log("Falha ao adicionar");
+                }
+                else{
+                  if(response.data=='true'){
+                    console.log("Adicionado com sucesso!");
+                    $scope.showSimpleToast("Adicionado com sucesso!");
+                  // window.location="admin.php";
+                  }
+                }
+              });
+  }
+  $scope.showSimpleToast = function(texto) {
+    $mdToast.show(
+      $mdToast.simple()
+        .textContent(texto)
+        .position('top right')
+        .hideDelay(3000)
+    );
+  };
       });
 
       //endregion
