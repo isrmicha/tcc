@@ -102,7 +102,7 @@
         $mdSidenav(navID)
           .toggle()
           .then(function () {
-            $log.debug("toggle " + navID + " is done");
+           
           });
       }, 50);
     }
@@ -204,6 +204,10 @@
         {headerName: "Data Atualizacao", field: "dataAtualizacao"},
         {headerName: "Excluir", field: "excluir", cellRenderer: excluirCellRendererFunc}
     ];
+    columnDefs.forEach((x)=>{
+      x.minWidth = 100;
+    });
+  
     var rowData = [];
     $scope.gridOptions = {
       enableFilter: true,
