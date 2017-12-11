@@ -4,3 +4,8 @@ html,body{
    md-sidenav {
        height: 100%
    }
+
+   .ag-floating-filter-input{
+    position : relative;
+    top:20px;
+   }

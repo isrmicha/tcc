@@ -195,15 +195,18 @@
   function preencheGrid(){
     $scope.gridOptions = {};
     var columnDefs = [
-        {headerName: "#", field: "id"},
-        {headerName: "Autor", field: "autor", width: 100, editable: ($scope.admin)?true:true},
-        {headerName: "Tema", field: "tema", width: 100, editable: ($scope.admin)?true:true},
-        {headerName: "Link", field: "link", width: 100, editable: ($scope.admin)?true:true},
+        {headerName: "#", field: "id", filter:'number'},
+        {headerName: "Autor", field: "autor", width: 100, filter:'text', editable: ($scope.admin)?true:true},
+        {headerName: "Tema", field: "tema", width: 100, editable: ($scope.admin)?true:true, filter:'text'},
+        {headerName: "Link", field: "link", width: 100, editable: ($scope.admin)?true:true, filter:'text'},
         {headerName: "Data Atualizacao", field: "dataAtualizacao"},
         {headerName: "Excluir", field: "excluir", cellRenderer: excluirCellRendererFunc}
     ];
     var rowData = [];
     $scope.gridOptions = {
+      enableFilter: true,
+    enableSorting: true,
+    floatingFilter: true,
         columnDefs: columnDefs,
         rowData: rowData,
     onCellEditingStopped: function(event) {
@@ -257,6 +260,8 @@ function excluirCellRendererFunc(params) {
     params.$scope.deletar = deletar;
     return '<button ng-click="deletar(data.id)">Excluir</button>';
 }
+
+
   $scope.adicionarTcc = function (autor,tema,link){
    
     $http({
