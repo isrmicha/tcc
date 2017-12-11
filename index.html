@@ -1,5 +1,6 @@
 <html lang="pt-br">
 <head>
+    <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
@@ -66,7 +67,7 @@
   });
   //endregion
 //region myCtrl
-  app.controller('myCtrl', function ($scope,$http,$timeout,$mdSidenav,$log,$location,$mdToast) {
+  app.controller('myCtrl', function ($scope,$http,$timeout,$mdSidenav,$log,$location,$mdToast,$mdDialog) {
 
 
     $scope.logado = false;
@@ -192,13 +193,14 @@
     }
     
   });
+  var globalValorAntigo = "";
   function preencheGrid(){
     $scope.gridOptions = {};
     var columnDefs = [
         {headerName: "#", field: "id", filter:'number'},
-        {headerName: "Autor", field: "autor", width: 100, filter:'text', editable: ($scope.admin)?true:true},
-        {headerName: "Tema", field: "tema", width: 100, editable: ($scope.admin)?true:true, filter:'text'},
-        {headerName: "Link", field: "link", width: 100, editable: ($scope.admin)?true:true, filter:'text'},
+        {headerName: "Autor", field: "autor", filter:'text', editable: ($scope.admin)?true:true},
+        {headerName: "Tema", field: "tema",  editable: ($scope.admin)?true:true, filter:'text'},
+        {headerName: "Link", field: "link",  editable: ($scope.admin)?true:true, filter:'text'},
         {headerName: "Data Atualizacao", field: "dataAtualizacao"},
         {headerName: "Excluir", field: "excluir", cellRenderer: excluirCellRendererFunc}
     ];
@@ -207,9 +209,14 @@
       enableFilter: true,
     enableSorting: true,
     floatingFilter: true,
+    onGridReady: function(params) {
+        params.api.sizeColumnsToFit();
+    },
         columnDefs: columnDefs,
         rowData: rowData,
+
     onCellEditingStopped: function(event) {
+      console.log(event);
       $http({method: 'GET',
               url: 'banco.php?autor='+event.data.autor+'&tema='+event.data.tema+'&id='+event.data.id+'&link='+event.data.link+'&update=true',
             }).then(function (response) {
@@ -235,6 +242,8 @@
      });
     
   }
+
+  
   
   function deletar(id) {
     $http({method: 'GET',
@@ -257,9 +266,11 @@
 
 function excluirCellRendererFunc(params) {
 
-    params.$scope.deletar = deletar;
-    return '<button ng-click="deletar(data.id)">Excluir</button>';
+    params.$scope.deletar = $scope.showConfirmExcluir;
+    return '<md-button class="md-warn" ng-click="deletar(data.id)">Excluir </md-button>';
 }
+
+
 
 
   $scope.adicionarTcc = function (autor,tema,link){
@@ -287,6 +298,39 @@ function excluirCellRendererFunc(params) {
         .position('top right')
         .hideDelay(3000)
     );
+  };
+ 
+  $scope.showConfirmExcluir = function(id) {
+    // Appending dialog to document.body to cover sidenav in docs app
+    var confirm = $mdDialog.confirm()
+          .title('Confirmar Exclusão')
+          .textContent('Tem certeza que deseja excluir ?')
+          .ariaLabel('')
+       
+          .ok('Aceitar')
+          .cancel('Cancelar');
+
+    $mdDialog.show(confirm).then(function() {
+     
+     
+      $http({method: 'GET',
+      url: 'banco.php?id='+id+'&delete=true',
+    }).then(function (response) {
+        if(response.data=='false'){
+          console.log("Falha ao delete");
+        }
+        else{
+          if(response.data=='true'){
+            console.log("Delete com sucesso");
+            $scope.showSimpleToast("Delete realizado com sucesso!");
+            preencheGrid();
+          }
+        }
+      }); 
+
+    }, function() {
+      console.log("cancelou");
+    });
   };
       });
 
