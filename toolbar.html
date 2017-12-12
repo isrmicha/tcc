@@ -5,6 +5,11 @@
       </md-button>
 
       <h2 flex md-truncate>{{toolBarName}}</h2>
-
+      <span flex></span>
+        <md-button class="md-raised" aria-label="Learn More" ng-click="mostraLoginView()" ng-if="!logado">
+          Login
+        </md-button>
     </div>
   </md-toolbar>
+
+  

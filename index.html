@@ -17,10 +17,11 @@
   <meta name="theme-color" content="#E0E0E0" />
 </head>
 <body ng-app="myApp" ng-controller="myCtrl" ng-cloak>
-<div ng-if="!logado">
+    
+<div ng-if="mostraLogin">
 <div ng-include="'login.html'"></div>
 </div>
-<div ng-if="logado">
+<div ng-if="!mostraLogin">
 <section layout="row" flex>
 
 <div ng-include="'leftNav.html'"></div>
@@ -56,6 +57,9 @@
     .when("/add", {
         templateUrl : "add.html"
     })
+    .when("/grid", {
+        templateUrl : "grid.html"
+    })
     .otherwise("/");
        // use the HTML5 History API
        $locationProvider.html5Mode({
@@ -68,15 +72,17 @@
   //endregion
 //region myCtrl
   app.controller('myCtrl', function ($scope,$http,$timeout,$mdSidenav,$log,$location,$mdToast,$mdDialog) {
-
-
+    $scope.$on('$viewContentLoaded', function(){
+     
+    $scope.mostraLogin =false;
     $scope.logado = false;
-    $scope.admin = false;
+
     $scope.toolBarName = "Banco de TCC's";
-    console.log(localStorage.logado);
+
+
     if(localStorage.logado=="true"){
       console.log('ta logado');
-      preencheGrid();
+      // preencheGrid();
       $scope.logado = true;
      
       
@@ -139,20 +145,20 @@
           nome: `Escola do Trabalhador: governo `
         });
         $scope.logar = function(email,senha){
-          console.log(email);
-          console.log(senha);
+     
             $http({
               method: 'GET',
               url: 'banco.php?email='+email+'&senha='+senha+'&login=true',
             }).then(function (response) {
                 if(response.data=='false'){
-                
+                  $scope.showSimpleToast("Falha ao realizar Login, verifique suas credenciais!");
                 }
                 else{
                   if(response.data=='true'){
                     localStorage.logado = true;
                  $scope.logado = true;
                  $scope.showSimpleToast("Login realizado com sucesso!");
+                 $scope.mostraLogin = false;
                   // window.location="admin.php";
                   }
                 }
@@ -162,6 +168,7 @@
         $scope.deslogar = function(){
          localStorage.logado = false;
           $scope.logado = false;
+          $scope.irPara('/');
 
         }
     $scope.close = function () {
@@ -183,14 +190,14 @@
 
       
   $scope.$on('$routeChangeSuccess', function($event, next, current) { 
-    try{
-      if(next.$$route.originalPath=='/'){
-      preencheGrid();
-    }
-    }
-    catch(err){
-      console.log(err);
-    }
+    // try{
+    //   // if(next.$$route.originalPath=='/'){
+    //   // preencheGrid();
+    // // }
+    // }
+    // catch(err){
+    //   console.log(err);
+    // }
     
   });
   var globalValorAntigo = "";
@@ -198,11 +205,11 @@
     $scope.gridOptions = {};
     var columnDefs = [
         {headerName: "#", field: "id", filter:'number'},
-        {headerName: "Autor", field: "autor", filter:'text', editable: ($scope.admin)?true:true},
-        {headerName: "Tema", field: "tema",  editable: ($scope.admin)?true:true, filter:'text'},
-        {headerName: "Link", field: "link",  editable: ($scope.admin)?true:true, filter:'text'},
+        {headerName: "Autor", field: "autor", filter:'text', editable: ($scope.logado)?true:false},
+        {headerName: "Tema", field: "tema",  editable: ($scope.logado)?true:false, filter:'text'},
+        {headerName: "Link", field: "link",  editable: ($scope.logado)?true:false, filter:'text'},
         {headerName: "Data Atualizacao", field: "dataAtualizacao"},
-        {headerName: "Excluir", field: "excluir", cellRenderer: excluirCellRendererFunc}
+        {headerName: "Excluir", field: "excluir", cellRenderer: excluirCellRendererFunc, hide : ($scope.logado)?false:true}
     ];
     columnDefs.forEach((x)=>{
       x.minWidth = 100;
@@ -213,14 +220,27 @@
       enableFilter: true,
     enableSorting: true,
     floatingFilter: true,
+    rowData : null,
     onGridReady: function(params) {
+     
         params.api.sizeColumnsToFit();
+        $http({  method: 'GET',
+              url: 'banco.php?read=true',
+            }).then(function (response) {
+            
+    $scope.gridOptions.rowData = response.data;
+   
+      params.api.setRowData(response.data);
+   
+   
+    
+     });
     },
         columnDefs: columnDefs,
         rowData: rowData,
 
     onCellEditingStopped: function(event) {
-      console.log(event);
+   
       $http({method: 'GET',
               url: 'banco.php?autor='+event.data.autor+'&tema='+event.data.tema+'&id='+event.data.id+'&link='+event.data.link+'&update=true',
             }).then(function (response) {
@@ -237,13 +257,7 @@
     },
     angularCompileRows: true
       };
-    $http({  method: 'GET',
-              url: 'banco.php?read=true',
-            }).then(function (response) {
-    // $scope.gridOptions.rowData = response.data;
-    $scope.gridOptions.api.setRowData(response.data);
-    
-     });
+  
     
   }
 
@@ -261,6 +275,7 @@
                     console.log("Delete com sucesso");
                     $scope.showSimpleToast("Delete realizado com sucesso!");
                     preencheGrid();
+                    $scope.irPara('/');
                   }
                 }
               }); 
@@ -328,6 +343,7 @@ function excluirCellRendererFunc(params) {
             console.log("Delete com sucesso");
             $scope.showSimpleToast("Delete realizado com sucesso!");
             preencheGrid();
+            $scope.irPara('/');
           }
         }
       }); 
@@ -336,7 +352,18 @@ function excluirCellRendererFunc(params) {
       console.log("cancelou");
     });
   };
+  $scope.mostraLoginView = function(){
+    $scope.mostraLogin = true;
+    // $scope.$apply();
+  }
+
+       
+          preencheGrid();
+       
+        
+
       });
+});
 
       //endregion
     </script>

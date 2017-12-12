@@ -11,16 +11,20 @@
     <md-list flex>
       <md-subheader class="md-no-sticky">Navegação</md-subheader>
       <md-list-item ng-click="irPara('inicial')">
+        <md-icon md-svg-icon="devices"></md-icon>
+        <p>Página Inicial</p>
+    </md-list-item>
+      <md-list-item ng-click="irPara('grid')">
           <md-icon md-svg-icon="content-copy"></md-icon>
           <p>Banco de TCC's</p>
       </md-list-item>
       <md-divider></md-divider>
-      <md-list-item ng-click="irPara('add')">
+      <md-list-item ng-click="irPara('add')" ng-if="logado">
           <md-icon md-svg-icon="add"></md-icon>
           <p>Adicionar TCC</p>
       </md-list-item>
       <md-divider></md-divider>
-        <md-list-item ng-click="deslogar()" >
+        <md-list-item ng-click="deslogar()" ng-if="logado">
             <md-icon md-svg-icon="arrow-back"></md-icon>
             <p>Sair</p>
           </md-list-item>
