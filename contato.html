@@ -1,0 +1,18 @@
+<md-content class="md-no-momentum" flex="80" layout="column">
+    <md-card md-theme-watch style="padding:7px 20px;">
+        <md-card-title-text>
+            <md-input-container class="md-icon-float md-block">
+                <!-- Use floating label instead of placeholder -->
+                <label>E-mail</label>
+                <input ng-model="formEmail" type="text">
+            </md-input-container>
+            <md-input-container class="md-block">
+                <label>Mensagem</label>
+                <textarea ng-model="user.biography" md-maxlength="150" rows="5" md-select-on-focus></textarea>
+            </md-input-container>
+            <md-input-container class="md-block">
+                <md-button class="md-raised md-primary">Enviar</md-button>
+            </md-input-container>
+        </md-card-title-text>
+    </md-card>
+</md-content>

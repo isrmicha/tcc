@@ -1,6 +1,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <title>TCC Finder</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
@@ -59,6 +60,9 @@
     })
     .when("/grid", {
         templateUrl : "grid.html"
+    })
+    .when("/contato", {
+        templateUrl : "contato.html"
     })
     .otherwise("/");
        // use the HTML5 History API

@@ -1,7 +1,6 @@
-<md-content layout-padding>
-        <div>
-          <form>
-            <div layout-gt-sm="column">
+<md-content class="md-no-momentum" flex="80" layout="column">
+    <md-card md-theme-watch style="padding:7px 20px;">
+        <md-card-title-text>
               <md-input-container class="md-block" flex-gt-sm>
                 <label>Autor</label>
                 <input ng-model="formAdd.autor">
@@ -18,7 +17,7 @@
                                 
                             <md-button class="md-raised md-primary" ng-click="adicionarTcc(formAdd.autor,formAdd.tema,formAdd.link)">Enviar</md-button>
                           </md-input-container>
-                          </div>
-                          
-                        
-          </form>
+                       
+        </md-card-title-text>
+      </md-card>
+  </md-content>
